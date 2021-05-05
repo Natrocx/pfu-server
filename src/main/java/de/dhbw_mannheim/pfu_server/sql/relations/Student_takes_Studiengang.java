@@ -1,21 +1,22 @@
 package de.dhbw_mannheim.pfu_server.sql.relations;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.sql.Date;
 
+@Entity(name="student_takes_studiengang")
 public class Student_takes_Studiengang {
 
+    @Id
     @Column(updatable = true,name="ID_User",nullable = false, columnDefinition = "int")
-    private
-    Integer ID_User;
+    private Integer ID_User;
 
     @Column(updatable = true,name="ID_Studiengang",nullable = false, columnDefinition = "int")
-    private
-    Integer ID_Studiengang;
+    private Integer ID_Studiengang;
 
     @Column(updatable = true,name="ID_DualeHochschule",nullable = false, columnDefinition = "int")
-    private
-    Integer ID_DualeHochschule;
+    private Integer ID_DualeHochschule;
 
     @Column(updatable = true,name="Date_Start",nullable = false, columnDefinition = "date")
     private Date date_start;

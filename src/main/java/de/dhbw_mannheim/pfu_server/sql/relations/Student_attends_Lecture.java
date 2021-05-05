@@ -1,12 +1,17 @@
 package de.dhbw_mannheim.pfu_server.sql.relations;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
+@Entity(name="student_attends_lecture")
 public class Student_attends_Lecture {
 
+    @Id
     @Column(updatable = true,name="ID_User",nullable = false, columnDefinition = "int")
     private Integer ID_User;
 
+    @Id
     @Column(updatable = true,name="ID_Lecture",nullable = false, columnDefinition = "int")
     private Integer ID_Lecture;
 

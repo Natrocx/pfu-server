@@ -1,21 +1,20 @@
 package de.dhbw_mannheim.pfu_server.sql.entities;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
-public class Messagecontent {
+@Entity(name="messagecontent")
+public class MessageContent {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     @Column(updatable = true,name="ID_MessageContent",nullable = false,columnDefinition = "int")
     private Integer ID_MessageContent;
 
-    @Column(updatable = true,name="first_name",nullable = false,columnDefinition = "varchar(255)")
+    @Column(updatable = true,name="ContentType",nullable = false,columnDefinition = "varchar(255)")
     private String ContentType;
 
-    @Column(updatable = true,name="first_name",nullable = false,columnDefinition = "longtext")
+    @Column(updatable = true,name="Content",nullable = false,columnDefinition = "longtext")
     private String Content;
+
 
     public Integer getID_MessageContent() {
         return ID_MessageContent;

@@ -1,28 +1,27 @@
 package de.dhbw_mannheim.pfu_server.sql.entities;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 
-@Entity // This tells Hibernate to make a table out of this class
+@Entity(name="info") // This tells Hibernate to make a table out of this class
 public class Info {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(updatable = true,name="ID_Info",nullable = false,columnDefinition = "int")
     private Integer ID_Info;
 
     @Column(updatable = true,name="Display_Name",nullable = false,columnDefinition = "mediumtext")
     private String Display_Name;
 
-    @Column(updatable = true,name="Kurzinfo",nullable = false,columnDefinition = "mediumtext")
+    @Column(updatable = true,name="Kurzinfo",nullable = true,columnDefinition = "mediumtext")
     private String Kurzinfo;
 
-    @Column(updatable = true,name="Priority",nullable = false,columnDefinition = "int")
+    @Column(updatable = true,name="Priority",nullable = true,columnDefinition = "int")
     private Integer Priority;
 
-    @Column(updatable = true,name="Textinfo",nullable = false,columnDefinition = "longtext")
+    @Column(updatable = true,name="Textinfo",nullable = true,columnDefinition = "longtext")
     private String Textinfo;
 
-    @Column(updatable = true,name="Weblink",nullable = false,columnDefinition = "longtext")
+    @Column(updatable = true,name="Weblink",nullable = true,columnDefinition = "longtext")
     private String Weblink;
 
     public Integer getID_Info() {

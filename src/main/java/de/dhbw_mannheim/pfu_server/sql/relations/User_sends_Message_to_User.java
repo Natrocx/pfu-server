@@ -1,16 +1,22 @@
 package de.dhbw_mannheim.pfu_server.sql.relations;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.sql.Timestamp;
 
+@Entity(name="user_sends_message_to_user")
 public class User_sends_Message_to_User {
 
+    @Id
     @Column(updatable = true,name="ID_User1",nullable = false, columnDefinition = "int")
     private Integer ID_User1;
 
+    @Id
     @Column(updatable = true,name="ID_User2",nullable = false, columnDefinition = "int")
     private Integer ID_User2;
 
+    @Id
     @Column(updatable = true,name="ID_Message",nullable = false, columnDefinition = "int")
     private Integer ID_Message;
 

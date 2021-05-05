@@ -9,7 +9,7 @@ public class Student {
     @OneToOne(mappedBy="user",cascade = CascadeType.ALL)
     private Integer ID_User;
 
-    @Column(updatable = true,name="Biography",nullable = false, columnDefinition = "longtext")
+    @Column(updatable = true,name="Biography",nullable = true, columnDefinition = "longtext")
     private String biography;
 
     @Column(updatable = true,name="Course_Name",nullable = false, columnDefinition = "varchar(45)")

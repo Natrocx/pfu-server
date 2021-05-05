@@ -8,29 +8,29 @@ import javax.persistence.Id;
 import javax.persistence.*;
 
 
-@Entity // This tells Hibernate to make a table out of this class
+@Entity(name="company") // This tells Hibernate to make a table out of this class
 public class Company {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(updatable = true,name="ID_Company",nullable = false,columnDefinition = "int")
     private Integer ID_Company;
 
-    @Column(updatable = true,name="Company_Name",nullable = false,columnDefinition = "varchar(255)")
+    @Column(updatable = true,name="Company_Name",nullable = false,columnDefinition = "mediumtext")
     private String Company_Name;
 
-    public Integer getId() {
+    public Integer getID_Company() {
         return ID_Company;
     }
 
-    public void setId(Integer id) {
-        this.ID_Company = id;
+    public void setID_Company(Integer ID_Company) {
+        this.ID_Company = ID_Company;
     }
 
-    public String getName() {
+    public String getCompany_Name() {
         return Company_Name;
     }
 
-    public void setName(String name) {
-        this.Company_Name = name;
+    public void setCompany_Name(String company_Name) {
+        Company_Name = company_Name;
     }
 }

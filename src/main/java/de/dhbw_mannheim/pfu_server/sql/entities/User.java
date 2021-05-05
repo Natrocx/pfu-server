@@ -7,9 +7,6 @@ public class User {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
-    @OneToOne
-    @PrimaryKeyJoinColumn
-    @JoinColumn(name="ID_User")
     private Integer ID_User;
 
     @Column(updatable = true,name="first_name",nullable = false,columnDefinition = "varchar(255)")

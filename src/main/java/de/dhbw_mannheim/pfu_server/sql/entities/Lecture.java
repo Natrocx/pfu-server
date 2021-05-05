@@ -4,14 +4,15 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-@Entity // This tells Hibernate to make a table out of this class
-public class lecture {
+@Entity(name="lecture") // This tells Hibernate to make a table out of this class
+public class Lecture {
     @Id
     @Column(updatable = true,name="ID_Lecture",nullable = false,columnDefinition = "int")
     private Integer ID_Lecture;
 
     @Column(updatable = true,name="Lecture_Name",nullable = false,columnDefinition = "mediumtext")
     private String Lecture_Name;
+
 
     public Integer getID_Lecture() {
         return ID_Lecture;
