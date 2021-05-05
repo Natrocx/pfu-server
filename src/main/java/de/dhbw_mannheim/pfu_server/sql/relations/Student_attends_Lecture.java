@@ -1,8 +1,11 @@
 package de.dhbw_mannheim.pfu_server.sql.relations;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import de.dhbw_mannheim.pfu_server.sql.entities.Lecture;
+import de.dhbw_mannheim.pfu_server.sql.entities.Student;
+import de.dhbw_mannheim.pfu_server.sql.entities.User;
+
+import javax.persistence.*;
+import java.util.List;
 
 @Entity(name="student_attends_lecture")
 public class Student_attends_Lecture {
@@ -11,9 +14,19 @@ public class Student_attends_Lecture {
     @Column(updatable = false,name="ID_User",nullable = false, columnDefinition = "int")
     private Integer ID_User;
 
+    @ManyToMany
+    @JoinColumn(name="ID_User")
+    @MapsId
+    private List<Student> student;
+
     @Id
     @Column(updatable = false,name="ID_Lecture",nullable = false, columnDefinition = "int")
     private Integer ID_Lecture;
+
+    @ManyToMany
+    @JoinColumn(name="ID_Lecture")
+    @MapsId
+    private List<Lecture> lecture;
 
     @Column(updatable = true,name="Proficiency",nullable = false, columnDefinition = "int")
     private Integer Proficiency = 3;
