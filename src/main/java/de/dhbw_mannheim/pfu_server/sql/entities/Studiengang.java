@@ -2,7 +2,7 @@ package de.dhbw_mannheim.pfu_server.sql.entities;
 
 import javax.persistence.*;
 
-@Entity // This tells Hibernate to make a table out of this class
+@Entity(name="studiengang") // This tells Hibernate to make a table out of this class
 public class Studiengang {
 
     @Id

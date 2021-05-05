@@ -2,7 +2,7 @@ package de.dhbw_mannheim.pfu_server.sql.entities;
 
 import javax.persistence.*;
 
-@Entity // This tells Hibernate to make a table out of this class
+@Entity(name="user") // This tells Hibernate to make a table out of this class
 public class User {
 
     @Id
@@ -21,7 +21,7 @@ public class User {
     @Column(updatable = true,name="e-mail",nullable = false, columnDefinition = "varchar(255)")
     private String email;
 
-    @Column(updatable = true, nullable = false,columnDefinition = "varchar(1000)")
+    @Column(updatable = true, name="password_encrypted", nullable = false,columnDefinition = "varchar(1000)")
     private String password_encrypted;
 
 

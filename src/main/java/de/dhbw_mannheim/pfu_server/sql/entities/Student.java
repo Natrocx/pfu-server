@@ -2,26 +2,32 @@ package de.dhbw_mannheim.pfu_server.sql.entities;
 
 import javax.persistence.*;
 
-@Entity // This tells Hibernate to make a table out of this class
+@Entity(name="student") // This tells Hibernate to make a table out of this class
 public class Student {
 
     @Id
     @OneToOne(mappedBy="user",cascade = CascadeType.ALL)
     private Integer ID_User;
 
-    @Column(updatable = true,name="first_name",nullable = false,columnDefinition = "varchar(255)")
-    private String first_name;
+    @Column(updatable = true,name="Biography",nullable = false, columnDefinition = "longtext")
+    private String biography;
 
-    @Column(updatable = true,name="last_name",nullable = false,columnDefinition = "varchar(255)")
-    private String last_name;
+    @Column(updatable = true,name="Course_Name",nullable = false, columnDefinition = "varchar(45)")
+    private String Course_Name;
 
-    @Column(updatable = true,name="e-mail",nullable = false, columnDefinition = "varchar(255)")
-    private String email;
+    public String getBiography() {
+        return biography;
+    }
 
-    @Column(updatable = true, nullable = false,columnDefinition = "varchar(1000)")
-    private String password_encrypted;
+    public void setBiography(String biography) {
+        this.biography = biography;
+    }
 
+    public String getCourse_Name() {
+        return Course_Name;
+    }
 
-
-
+    public void setCourse_Name(String course_Name) {
+        Course_Name = course_Name;
+    }
 }
