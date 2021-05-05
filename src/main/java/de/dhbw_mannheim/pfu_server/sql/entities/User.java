@@ -7,6 +7,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
+    @Column(updatable = false,name="ID_User",nullable = true, columnDefinition = "int")
     private Integer ID_User;
 
     @Column(updatable = true,name="first_name",nullable = false,columnDefinition = "varchar(255)")

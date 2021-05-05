@@ -3,7 +3,7 @@ package de.dhbw_mannheim.pfu_server.sql.entities;
 import javax.persistence.*;
 
 @Entity(name="dualehochschule") // This tells Hibernate to make a table out of this class
-public class Dualehochschule {
+public class DualeHochschule {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     @Column(updatable = true,name="ID_Hochschule",nullable = false,columnDefinition = "int")

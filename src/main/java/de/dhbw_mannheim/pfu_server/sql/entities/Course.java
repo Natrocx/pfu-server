@@ -7,12 +7,16 @@ public class Course {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(updatable = true,name="Course_Name",nullable = false,columnDefinition = "varchar(45)")
+    @Column(updatable = false,name="Course_Name",nullable = false,columnDefinition = "varchar(45)")
     private String Course_Name;
 
-    @Column(updatable = true,name="ID_Studiengang",nullable = false,columnDefinition = "int")
+    @Column(updatable = false,name="ID_Studiengang",nullable = false,columnDefinition = "int")
     private Integer ID_Studiengang;
 
+    @ManyToOne
+    @JoinColumn(name="ID_Studiengang")
+    @MapsId
+    private Studiengang studiengang;
 
     public String getCourse_Name() {
         return Course_Name;

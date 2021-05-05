@@ -8,6 +8,7 @@ public class Phase {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
+    @Column(updatable = false,name="ID_Phase",nullable = false, columnDefinition = "int")
     private Integer ID_Phase;
 
     @Column(updatable = true,name="Date_Start",nullable = false, columnDefinition = "date")
@@ -19,8 +20,13 @@ public class Phase {
     @Column(updatable = true,name="Type",nullable = false, columnDefinition = "varchar(45)")
     private String type;
 
-    @Column(updatable = true,name="Course_Name",nullable = false, columnDefinition = "varchar(45)")
+    @Column(updatable = false,name="Course_Name",nullable = false, columnDefinition = "varchar(45)")
     private String Course_Name;
+
+    @ManyToOne
+    @JoinColumn(name="Course_Name")
+    @MapsId
+    private Course course;
 
     public Integer getID_Phase() {
         return ID_Phase;

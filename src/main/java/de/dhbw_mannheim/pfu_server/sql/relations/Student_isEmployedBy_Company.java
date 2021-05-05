@@ -1,8 +1,9 @@
 package de.dhbw_mannheim.pfu_server.sql.relations;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import de.dhbw_mannheim.pfu_server.sql.entities.Company;
+import de.dhbw_mannheim.pfu_server.sql.entities.User;
+
+import javax.persistence.*;
 
 @Entity(name="student_is-employed-by_company")
 public class Student_isEmployedBy_Company {
@@ -11,9 +12,19 @@ public class Student_isEmployedBy_Company {
     @Column(updatable = true,name="ID_User",nullable = false, columnDefinition = "int")
     private Integer ID_User;
 
+    @ManyToOne
+    @JoinColumn(name="ID_User")
+    @MapsId
+    private User user;
+
     @Id
     @Column(updatable = true,name="ID_Company",nullable = false, columnDefinition = "int")
     private Integer ID_Company;
+
+    @ManyToOne
+    @JoinColumn(name="ID_Company")
+    @MapsId
+    private Company company;
 
     @Column(updatable = true,name="Location",nullable = true, columnDefinition = "mediumtext")
     private String Location;

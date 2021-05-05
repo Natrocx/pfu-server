@@ -8,11 +8,11 @@ import javax.persistence.Id;
 public class Student_attends_Lecture {
 
     @Id
-    @Column(updatable = true,name="ID_User",nullable = false, columnDefinition = "int")
+    @Column(updatable = false,name="ID_User",nullable = false, columnDefinition = "int")
     private Integer ID_User;
 
     @Id
-    @Column(updatable = true,name="ID_Lecture",nullable = false, columnDefinition = "int")
+    @Column(updatable = false,name="ID_Lecture",nullable = false, columnDefinition = "int")
     private Integer ID_Lecture;
 
     @Column(updatable = true,name="Proficiency",nullable = false, columnDefinition = "int")

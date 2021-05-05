@@ -12,7 +12,7 @@ import javax.persistence.*;
 public class Company {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(updatable = true,name="ID_Company",nullable = false,columnDefinition = "int")
+    @Column(updatable = false,name="ID_Company",nullable = false,columnDefinition = "int")
     private Integer ID_Company;
 
     @Column(updatable = true,name="Company_Name",nullable = false,columnDefinition = "mediumtext")

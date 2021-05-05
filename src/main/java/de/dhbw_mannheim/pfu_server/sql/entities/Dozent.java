@@ -5,8 +5,13 @@ import javax.persistence.*;
 @Entity(name="dozent") // This tells Hibernate to make a table out of this class
 public class Dozent {
     @Id
-    @Column(updatable = true,name="ID_User",nullable = false,columnDefinition = "int")
+    @Column(updatable = false,name="ID_User",nullable = false,columnDefinition = "int")
     private Integer ID_User;
+
+    @OneToOne
+    @JoinColumn(name="ID_User")
+    @MapsId
+    private User user;
 
     @Column(updatable = true,name="Biography",nullable = true,columnDefinition = "longtext")
     private String Biography;

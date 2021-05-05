@@ -1,9 +1,11 @@
 package de.dhbw_mannheim.pfu_server.sql.relations;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import de.dhbw_mannheim.pfu_server.sql.entities.Message;
+import de.dhbw_mannheim.pfu_server.sql.entities.User;
+
+import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity(name="user_sends_message_to_user")
 public class User_sends_Message_to_User {
@@ -12,13 +14,28 @@ public class User_sends_Message_to_User {
     @Column(updatable = true,name="ID_User1",nullable = false, columnDefinition = "int")
     private Integer ID_User1;
 
+    @ManyToMany
+    @JoinColumn(name="ID_User1", referencedColumnName="ID_User")
+    @MapsId
+    private List<User> user1;
+
     @Id
     @Column(updatable = true,name="ID_User2",nullable = false, columnDefinition = "int")
     private Integer ID_User2;
 
+    @ManyToMany
+    @JoinColumn(name="ID_User2", referencedColumnName="ID_User")
+    @MapsId
+    private List<User> user2;
+
     @Id
     @Column(updatable = true,name="ID_Message",nullable = false, columnDefinition = "int")
     private Integer ID_Message;
+
+    @ManyToMany
+    @JoinColumn(name="ID_Message")
+    @MapsId
+    private List<Message> message;
 
     @Column(updatable = true,name="Timestamp",nullable = false, columnDefinition = "timestamp")
     private Timestamp Timestamp;
