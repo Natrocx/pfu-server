@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import de.dhbw_mannheim.pfu_server.sql.entities.User;
 
 @Controller // This means that this class is a Controller
 @RequestMapping(path="/demo") // This means URL's start with /demo (after Application path)
@@ -22,15 +23,14 @@ public class MainController {
         // @RequestParam means it is a parameter from the GET or POST request
 
         User n = new User();
-        n.setName(name);
+        n.setFirst_name(name);
         n.setEmail(email);
-        userRepository.save(n);
         return "Saved";
     }
 
     @GetMapping(path="/all")
-    public @ResponseBody Iterable<User> getAllUsers() {
+    public @ResponseBody String getAllUsers() {
         // This returns a JSON or XML with the users
-        return userRepository.findAll();
+        return userRepository.getFirst_name();
     }
 }
