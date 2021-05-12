@@ -1,12 +1,11 @@
 package de.dhbw_mannheim.pfu_server.sql.entities;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity(name="lecture") // This tells Hibernate to make a table out of this class
 public class Lecture {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(updatable = true,name="ID_Lecture",nullable = false,columnDefinition = "int")
     private Integer ID_Lecture;
 
