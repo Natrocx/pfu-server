@@ -2,10 +2,9 @@ package de.dhbw_mannheim.pfu_server.native_queries;
 
 
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import org.hibernate.Transaction;
+
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,10 +12,18 @@ import java.util.Map;
 
 public class QueryManager {
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("de.dhbw_mannheim.pfu_server");
+
+    //@PersistenceContext
+    //private EntityManager entityManager;
+
+    public EntityManager getEntityManager() {
+        return entityManagerFactory.createEntityManager();
+    }
 
     public List<Object[]> sqlDataQuery(String query){
+
+        EntityManager entityManager = getEntityManager();
 
         entityManager.getTransaction().begin();
 
@@ -25,7 +32,7 @@ public class QueryManager {
         List<Object[]> output = q.getResultList();
 
         entityManager.getTransaction().commit();
-        //entityManager.close();
+        entityManager.close();
 
         return output;
     }
@@ -77,19 +84,24 @@ public class QueryManager {
     }
 
     public boolean sqlStatement(String query){
+
         try{
+            EntityManager entityManager = getEntityManager();
+
             entityManager.getTransaction().begin();
 
             Query q = entityManager.createNativeQuery(query);
 
-            List<Object> output = q.getResultList();
+            q.executeUpdate();
 
             entityManager.getTransaction().commit();
+            entityManager.close();
 
             return true;
         }
         catch (Exception e){
-            return false;
+            throw e;
+            //return false;
         }
     }
 
