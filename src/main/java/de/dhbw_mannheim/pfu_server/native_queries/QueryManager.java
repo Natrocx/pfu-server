@@ -75,12 +75,93 @@ public class QueryManager {
         return output;
     }
 
+    public List<Object[]> sqlDataQuery(String query, String[] parameters){
+
+        Session session = getSession();
+
+        Transaction transaction = session.beginTransaction();
+
+        NativeQuery q = session.createNativeQuery(query);
+
+        for (int i = 0; i < parameters.length; i++) {
+            q.setParameter(i+1, parameters[i]);
+        }
+
+        List output = q.list();
+
+        transaction.commit();
+        session.close();
+
+        return output;
+    }
+
+    public List<Map<String,Object>> sqlDataQueryMapped(String query, String[] columns, String[] parameters){
+
+        //String[] combinedArray = combineArrays(columns, parameters);
+        String columnQuery = addColumns(query, columns);
+
+        List<Object[]> unformattedList = sqlDataQuery(columnQuery, parameters);
+
+        return mapQuery(unformattedList, columns);
+    }
+
+    private String addColumns(String query, String[] columns) {
+        StringBuilder sb = new StringBuilder(query);
+
+        int idx = 0;
+        for (int i = 0; i < columns.length; i++) {
+            int x = sb.indexOf("?", idx);
+            idx = x;
+
+            sb.replace(x, x+1, makeColumn(columns[i]));
+        }
+
+        return sb.toString();
+    }
+
+    private String makeColumn(String column) {
+        StringBuilder sb = new StringBuilder();
+        String wrapper = "`";
+        if(!column.contains(".")) {
+
+            sb.append(wrapper);
+            sb.append(column);
+            sb.append(wrapper);
+
+        } else{
+            String[] split = column.split("\\.");
+            sb.append(split[0]);
+            sb.append(".");
+            sb.append(wrapper);
+            sb.append(split[1]);
+            sb.append(wrapper);
+        }
+
+        return sb.toString();
+    }
+
+    private String[] combineArrays(String[] a, String[] b) {
+        int aLen = a.length;
+        int bLen = b.length;
+
+        String[] output = new String[aLen+bLen];
+
+        int i = 0;
+        for (; i < aLen; i++) {
+            output[i] = a[i];
+        }
+        for (; i-aLen < bLen; i++) {
+            output[i] = b[i-aLen];
+        }
+        return output;
+
+    }
+
     /*
         @usage: sqlDataQueryMapped("SELECT ? FROM ...",["column1", "column2",...]);
      */
     public List<Map<String,Object>> sqlDataQueryMapped(String query, String[] columns){
         String columnsString = columnArrayToString(columns);
-        //query.replace("?", columnsString);
         StringBuilder sb = new StringBuilder(query);
         int indexofq = sb.indexOf("?");
         sb.replace(indexofq,indexofq+1, columnsString);
@@ -93,19 +174,28 @@ public class QueryManager {
     private List<Map<String,Object>> mapQuery(List<Object[]> unformattedList, String[] columns) {
         List<Map<String,Object>> formattedList = new ArrayList<>();
 
-        for (Object[] result: unformattedList) {
-            Map<String, Object> resultMap = new HashMap<>();
-            for (int i = 0; i< result.length; i++){
-                try {
-                    resultMap.put(columns[i], result[i]);
-                }
-                catch(Exception e){
-
-                }
+        if (columns.length == 1){
+            for (Object stringResult:
+                 unformattedList) {
+                Map<String, Object> resultMap = new HashMap<>();
+                resultMap.put(columns[0], stringResult);
+                formattedList.add(resultMap);
             }
-            formattedList.add(resultMap);
         }
+        else {
+            for (Object[] result : unformattedList) {
+                Map<String, Object> resultMap = new HashMap<>();
 
+                for (int i = 0; i < result.length; i++) {
+                    try {
+                        resultMap.put(columns[i], result[i]);
+                    } catch (Exception e) {
+
+                    }
+                }
+                formattedList.add(resultMap);
+            }
+        }
         return formattedList;
     }
 

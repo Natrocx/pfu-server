@@ -42,24 +42,27 @@ public class Queries {
     public List<Map<String,Object>> getUserIDFromEmail(String email){
         QueryManager qm = new QueryManager();
 
-        String query = "SELECT ? FROM user WHERE \'e-mail\'=" + email + ";";
+        String query = "SELECT ?, ? FROM user WHERE `e-mail` = ?;";
 
-        String[] columns = {"`ID_USER`"};
+        String[] columns = {"ID_USER", "e-mail"};
+        String[] values = {email};
 
-        return qm.sqlDataQueryMapped(query, columns);
+        return qm.sqlDataQueryMapped(query, columns, values);
     }
 
     public List<Map<String, Object>> getMessageIDs(String userID_1, String userID_2) {
         QueryManager qm = new QueryManager();
 
-        String query = "SELECT ? FROM user_sends_message_to_user " +
+        String query = "SELECT ?, ?, ?, ?, ?, ?, ? FROM user_sends_message_to_user " +
                 "JOIN message ON user_sends_message_to_user.ID_Message = message.ID_Message " +
                 "JOIN messagecontent ON message.ID_MessageContent = messagecontent.ID_MessageContent " +
-                "WHERE ID_User1 = \'" + userID_1 +"\' AND ID_User2 = \'" + userID_2 +"\';";
+                "WHERE ID_User1 = ? AND ID_User2 = ?;";
 
-        String[] columns = {"`ID_USER1`", "`ID_USER2`", "message.`ID_Message`", "`Timestamp`", "messagecontent.`ID_MessageContent`", "`ContentType`", "`Content`"};
+        String[] columns = {"ID_USER1", "ID_USER2", "message.ID_Message", "Timestamp", "messagecontent.ID_MessageContent",
+                "ContentType", "Content"};
+        String[] values = {userID_1, userID_2};
 
-        return qm.sqlDataQueryMapped(query, columns);
+        return qm.sqlDataQueryMapped(query, columns, values);
     }
 
     public List<Map<String, Object>> getMessageContent(String id_messageContent) {
@@ -81,18 +84,22 @@ public class Queries {
 
             Transaction transaction = session.beginTransaction();
 
-            String query1 = "INSERT INTO messagecontent (ContentType, Content) VALUES (\'text\', \'" + content + "\');";
+            String query1 = "INSERT INTO messagecontent (ContentType, Content) VALUES (\'text\', :content);";
             String query2 = "INSERT INTO message (ID_MessageContent) VALUES (LAST_INSERT_ID()); ";
             String query3 = "INSERT INTO user_sends_message_to_user (ID_User1, ID_User2, ID_Message, Timestamp) " +
-                    "VALUES (\'" + senderID +"\', \'" + receiverID +"\', LAST_INSERT_ID(), CURRENT_TIMESTAMP()); ";
+                    "VALUES (:senderid, :receiverid, LAST_INSERT_ID(), CURRENT_TIMESTAMP()); ";
 
-            NativeQuery q1 = session.createNativeQuery(query1);
+            NativeQuery q1 = session.createNativeQuery(query1)
+                    .setParameter("content", content);
             q1.executeUpdate();
 
             NativeQuery q2 = session.createNativeQuery(query2);
             q2.executeUpdate();
 
-            NativeQuery q3 = session.createNativeQuery(query3);
+            NativeQuery q3 = session.createNativeQuery(query3)
+                    .setParameter("senderid", senderID)
+                    .setParameter("receiverid", receiverID);
+
             q3.executeUpdate();
 
 
@@ -109,18 +116,4 @@ public class Queries {
         //return qm.sqlStatement(query);
     }
 
-    /*
-    //TODO: implement all queries with parameter binding via loops and arrays for ".setParameter(i, array[i]"
-    entityManager.createNativeQuery(
-    "INSERT INTO TASK_ASSESSMENT (ACTIVE_FLAG, ASSESSMENT_DATE, DESCRIPTION, "
-    + "TITLE, NEEDS_LEVEL_ID, PATIENT_ID, USER_ID) VALUES (?, ?, ?, ?, ?, ?, ?)")
-    .setParameter(1, true)
-    .setParameter(2, saveDate, TemporalType.TIMESTAMP) // Since you want it to be a TIMESTAMP
-    .setParameter(3, description)
-    .setParameter(4, title)
-    .setParameter(5, needsLevelId)
-    .setParameter(6, patientId)
-    .setParameter(7, userId)
-    .executeUpdate();
-     */
 }

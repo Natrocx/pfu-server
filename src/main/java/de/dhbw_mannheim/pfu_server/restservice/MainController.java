@@ -114,8 +114,4 @@ public class MainController {
     KursListe abrufen
      */
 
-    /*
-    "SELECT user_Id,name,username,isadmin,region_id,team_id,domain_id FROM user u where u.user_id=?")
-				.setParameter(1, 1).list();
-     */
 }
