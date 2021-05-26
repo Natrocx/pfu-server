@@ -103,7 +103,7 @@ public class MainController {
 
     /*
     Nachrichten abrufen: alle, ab einer Nachrichten-ID (also alles was danach kommt)
-    Nachrichten schicken
+    DONE: Nachrichten schicken
 
     Registrierung,
     Login (Login-Daten überprüfen),
