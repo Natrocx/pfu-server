@@ -2,7 +2,12 @@ package de.dhbw_mannheim.pfu_server.native_queries;
 
 
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.query.NativeQuery;
+import org.hibernate.query.QueryProducer;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -14,6 +19,19 @@ public class QueryManager {
 
     EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("de.dhbw_mannheim.pfu_server");
 
+
+    SessionFactory sessionFactory = getCurrentSessionFromJPA();
+
+
+    public SessionFactory getCurrentSessionFromJPA() {
+        EntityManager entityManager = getEntityManager();
+        // Get the Hibernate Session from the EntityManager in JPA
+        Session session = entityManager.unwrap(org.hibernate.Session.class);
+        SessionFactory sessionFactory = session.getSessionFactory();
+        return sessionFactory;
+    }
+
+
     //@PersistenceContext
     //private EntityManager entityManager;
 
@@ -21,6 +39,11 @@ public class QueryManager {
         return entityManagerFactory.createEntityManager();
     }
 
+    public Session getSession(){
+        return sessionFactory.getCurrentSession();
+    }
+
+    /*
     public List<Object[]> sqlDataQuery(String query){
 
         EntityManager entityManager = getEntityManager();
@@ -35,6 +58,21 @@ public class QueryManager {
         entityManager.close();
 
         return output;
+    }*/
+
+    public List<Object[]> sqlDataQuery(String query){
+
+        Session session = getSession();
+
+        Transaction transaction = session.beginTransaction();
+
+        NativeQuery q = session.createNativeQuery(query);
+        List output = q.list();
+
+        transaction.commit();
+        session.close();
+
+        return output;
     }
 
     /*
@@ -42,9 +80,12 @@ public class QueryManager {
      */
     public List<Map<String,Object>> sqlDataQueryMapped(String query, String[] columns){
         String columnsString = columnArrayToString(columns);
-        query.replace("?", columnsString);
+        //query.replace("?", columnsString);
+        StringBuilder sb = new StringBuilder(query);
+        int indexofq = sb.indexOf("?");
+        sb.replace(indexofq,indexofq+1, columnsString);
 
-        List<Object[]> unformattedList = sqlDataQuery(query);
+        List<Object[]> unformattedList = sqlDataQuery(sb.toString());
 
         return mapQuery(unformattedList, columns);
     }
@@ -72,13 +113,16 @@ public class QueryManager {
     private String columnArrayToString(String[] columns){
         StringBuilder stringBuilder = new StringBuilder();
 
-        for (String column:
+        /*for (String column:
              columns) {
             stringBuilder.append(column + ", ");
+        }*/
+        for (int i = 0; i < columns.length-1; i++) {
+            stringBuilder.append(columns[i] + ", ");
         }
+        stringBuilder.append(columns[columns.length-1]);
 
-        int len = stringBuilder.length();
-        stringBuilder.delete(len-1, len);
+        //stringBuilder.deleteCharAt(stringBuilder.length()-1);
 
         return stringBuilder.toString();
     }
