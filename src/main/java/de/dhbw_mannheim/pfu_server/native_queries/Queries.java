@@ -1,5 +1,6 @@
 package de.dhbw_mannheim.pfu_server.native_queries;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.NativeQuery;
@@ -451,5 +452,145 @@ public class Queries {
         String[] values = {};
 
         return qm.sqlDataQueryMapped(query, columns, values);
+    }
+
+    public String verifyUser(String verificationKey) {
+        QueryManager qm = new QueryManager();
+
+        try{
+
+            Session session = qm.getSession();
+
+            Transaction transaction = session.beginTransaction();
+
+            String query1 = "SELECT ?, ?, ?, ? FROM verification WHERE verificationKey = ?;";
+
+            List<Map<String, Object>> verificationList = new QueryManager().sqlDataQueryMapped(query1,
+                    new String[]{"ID_User", "verificationKey", "used", "target"},
+                    new String[]{verificationKey});
+
+            if (verificationList.size() == 0){
+
+                transaction.commit();
+                session.close();
+                return "Invalid Key";
+            } else {
+                Map<String, Object> key = verificationList.get(0);
+
+                if (key.get("used").equals(1)){
+
+                    transaction.commit();
+                    session.close();
+                    return "Key was already used";
+                } else {
+                    if (!key.get("target").equals("email")){
+
+                        transaction.commit();
+                        session.close();
+                        return "Valid Key: " + key.get("target");
+                    }
+                    else {
+
+                        String query2 = "UPDATE user SET verified = TRUE WHERE ID_User = :userid;";
+
+                        NativeQuery q2 = session.createNativeQuery(query2)
+                                .setParameter("userid", key.get("ID_User"));
+                        q2.executeUpdate();
+
+                        String query3 = "UPDATE verification SET used = TRUE WHERE verificationKey = :verificationkey;";
+
+                        NativeQuery q3 = session.createNativeQuery(query3)
+                                .setParameter("verificationkey", verificationKey);
+                        q3.executeUpdate();
+
+                        transaction.commit();
+                        session.close();
+
+                        return "Valid Key: E-Mail";
+                    }
+                }
+            }
+        }
+        catch (Exception e){
+            return "Fail";
+            //return false;
+        }
+    }
+
+    public String[] generateVerificationKey(String userID, String target) {
+        QueryManager qm = new QueryManager();
+
+        try{
+
+            Session session = qm.getSession();
+
+            Transaction transaction = session.beginTransaction();
+
+            String query1 = "SELECT ?, ? FROM user WHERE ID_User = ?;";
+
+            List<Map<String, Object>> userList = new QueryManager().sqlDataQueryMapped(query1, new String[]{"ID_User", "e-mail"},
+                    new String[]{userID});
+
+            if (userList.size() == 0){
+
+                transaction.commit();
+                session.close();
+                return new String[]{"Invalid User", "", ""};
+            } else {
+                Map<String, Object> user = userList.get(0);
+
+                String query2 = "SELECT ? FROM verification;";
+
+                List<Map<String, Object>> keyList = new QueryManager().sqlDataQueryMapped(query2,
+                        new String[]{"verificationKey"},
+                        new String[]{});
+
+                List<String> keys = extractKeys(keyList);
+
+                String verificationKey = generateKey(255, keys);
+
+                String query3 = "INSERT INTO verification (ID_User, verificationKey, target) VALUES (:userid, :verificationkey, :target)";
+
+                NativeQuery q3 = session.createNativeQuery(query3)
+                        .setParameter("userid", userID)
+                        .setParameter("verificationkey", verificationKey)
+                        .setParameter("target", target);
+                q3.executeUpdate();
+
+
+                transaction.commit();
+                session.close();
+
+                return new String[]{"Success", user.get("e-mail").toString(), verificationKey};
+            }
+        }
+        catch (Exception e){
+            throw e;
+            //return false;
+        }
+    }
+
+    private String generateKey(int length, List<String> keys) {
+
+        boolean useLetters = true;
+        boolean useNumbers = true;
+        String generatedString = RandomStringUtils.random(length, useLetters, useNumbers);
+
+        while (keys.contains(generatedString)){
+            generatedString = RandomStringUtils.random(length, useLetters, useNumbers);
+        }
+
+        return generatedString;
+    }
+
+    private List<String> extractKeys(List<Map<String, Object>> keyList) {
+        List<String> keys = new ArrayList<>();
+
+        for (Map<String, Object> k:
+             keyList) {
+            keys.add(k.get("verificationKey").toString());
+        }
+
+        return keys;
     }
 }

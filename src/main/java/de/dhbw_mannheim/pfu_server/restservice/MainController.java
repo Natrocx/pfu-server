@@ -1,5 +1,6 @@
 package de.dhbw_mannheim.pfu_server.restservice;
 
+import de.dhbw_mannheim.pfu_server.mailservice.EmailServiceImpl;
 import de.dhbw_mannheim.pfu_server.native_queries.Queries;
 import de.dhbw_mannheim.pfu_server.native_queries.QueryManager;
 import org.hibernate.Session;
@@ -189,5 +190,33 @@ public class MainController {
         return q.getDozenten();
     }
 
+    @PostMapping(path="/verifyUser")
+    public @ResponseBody String verifyUser(@RequestParam String verificationKey){
+        Queries q = new Queries();
+
+        String success = q.verifyUser(verificationKey);
+
+        return success;
+    }
+
+    @PostMapping(path="/generateVerificationKey")
+    public @ResponseBody String generateVerificationKey(@RequestParam String userID, @RequestParam String target){
+        Queries q = new Queries();
+
+        String[] successMailKey = q.generateVerificationKey(userID, target);
+
+        boolean mailSuccess = false;
+
+        if(successMailKey[0].equals("Success")) {
+            mailSuccess = sendVerificationEmail(successMailKey[1], successMailKey[2], target);
+        }
+
+        return mailSuccess ? successMailKey[0] : successMailKey[0]+"; "+"Email failed to send";
+    }
+
+    private boolean sendVerificationEmail(String email, String key, String target) {
+        EmailServiceImpl esi = new EmailServiceImpl();
+        return esi.sendTemplatedMessage(email, "StudConnect Verification", target, key);
+    }
 
 }
