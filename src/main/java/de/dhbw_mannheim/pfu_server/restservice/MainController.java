@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.persistence.Tuple;
 import javax.persistence.TupleElement;
+import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -58,7 +59,7 @@ public class MainController {
     }
 
     @GetMapping(path="/selectUsers")
-    public @ResponseBody List<Object[]> getAllUsers() {
+    public @ResponseBody List<Map<String,Object>> getAllUsers() {
         Queries q = new Queries();
 
         return q.getAllUsers();
@@ -96,22 +97,97 @@ public class MainController {
 
         String out = success ? "Success" : "Fail";
 
-        //return first_name + " " + last_name + " " + email + " " + encrypted_password + " " + out;
         return out;
     }
 
+    @GetMapping(path="/getUserByID")
+    public @ResponseBody List<Map<String,Object>> getUser(@RequestParam String userID) {
+        Queries q = new Queries();
 
-    /*
-    Nachrichten abrufen: alle, ab einer Nachrichten-ID (also alles was danach kommt)
-    DONE: Nachrichten schicken
+        return q.getUser(userID);
+    }
 
-    Registrierung,
-    Login (Login-Daten überprüfen),
-    Email-Verifizierung? (code verschicken und überprüfen).
+    @GetMapping(path="/getCourses")
+    public @ResponseBody List<Map<String,Object>> getCourses() {
+        Queries q = new Queries();
 
-    User info abrufen,
-    random Vorschlag abrufen,
-    KursListe abrufen
-     */
+        return q.getCourses();
+    }
+
+    @GetMapping(path="/getUserSuggestions")
+    public @ResponseBody List<Map<String,Object>> getUserSuggestions(@RequestParam String studiengang_name, @RequestParam String company_name,
+                                                                     @RequestParam String course_name, @RequestParam String lecture_name,
+                                                                     @RequestParam String minimum_lecture_proficiency, @RequestParam String email,
+                                                                     @RequestParam String first_name, @RequestParam String last_name) {
+        Queries q = new Queries();
+
+        return q.getUserSuggestions(studiengang_name, company_name, course_name,
+                lecture_name, minimum_lecture_proficiency, email, first_name, last_name);
+    }
+
+    @GetMapping(path="/getLecturesFromUser")
+    public @ResponseBody List<Map<String,Object>> getLecturesFromUser(@RequestParam String userID) {
+        Queries q = new Queries();
+
+        return q.getLecturesFromUser(userID);
+    }
+
+    @PostMapping(path="/addDozent") // Map ONLY POST Requests
+    public @ResponseBody String addDozent (@RequestParam String userID, @RequestParam String Biography
+            , @RequestParam String Special_Role, @RequestParam List<String> titles) {
+        // @ResponseBody means the returned String is the response, not a view name
+        // @RequestParam means it is a parameter from the GET or POST request
+        Queries q = new Queries();
+
+        boolean success = q.addDozent(userID, Biography, Special_Role, titles);
+
+        String out = success ? "Success" : "Fail";
+
+        return out;
+    }
+
+    @PostMapping(path="/addStudent") // Map ONLY POST Requests
+    public @ResponseBody String addStudent (@RequestParam String userID, @RequestParam String Biography,
+                                            @RequestParam String Course_Name, @RequestParam String companyID,
+                                            @RequestParam String companyLocation, @RequestParam String hochschuleID,
+                                            @RequestParam Date startDate, @RequestParam Date graduationDate) {
+        // @ResponseBody means the returned String is the response, not a view name
+        // @RequestParam means it is a parameter from the GET or POST request
+        Queries q = new Queries();
+
+        boolean success = q.addStudent(userID, Biography, Course_Name, companyID, companyLocation, hochschuleID, startDate, graduationDate);
+
+        String out = success ? "Success" : "Fail";
+
+        return out;
+    }
+
+    @PostMapping(path="/addReadLecture") // Map ONLY POST Requests
+    public @ResponseBody String addReadLecture (@RequestParam String userID, @RequestParam String lectureName, @RequestParam String Course_Name) {
+        // @ResponseBody means the returned String is the response, not a view name
+        // @RequestParam means it is a parameter from the GET or POST request
+        Queries q = new Queries();
+
+        boolean success = q.addReadLecture(userID, lectureName, Course_Name);
+
+        String out = success ? "Success" : "Fail";
+
+        return out;
+    }
+
+    @GetMapping(path="/getStudents")
+    public @ResponseBody List<Map<String,Object>> getStudents() {
+        Queries q = new Queries();
+
+        return q.getStudents();
+    }
+
+    @GetMapping(path="/getDozenten")
+    public @ResponseBody List<Map<String,Object>> getDozenten() {
+        Queries q = new Queries();
+
+        return q.getDozenten();
+    }
+
 
 }

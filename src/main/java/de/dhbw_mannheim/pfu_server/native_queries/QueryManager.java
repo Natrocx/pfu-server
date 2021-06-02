@@ -122,19 +122,23 @@ public class QueryManager {
     private String makeColumn(String column) {
         StringBuilder sb = new StringBuilder();
         String wrapper = "`";
-        if(!column.contains(".")) {
-
-            sb.append(wrapper);
+        if (column.contains("\'")){
             sb.append(column);
-            sb.append(wrapper);
-
         } else{
-            String[] split = column.split("\\.");
-            sb.append(split[0]);
-            sb.append(".");
-            sb.append(wrapper);
-            sb.append(split[1]);
-            sb.append(wrapper);
+            if(!column.contains(".")) {
+
+                sb.append(wrapper);
+                sb.append(column);
+                sb.append(wrapper);
+
+            } else{
+                String[] split = column.split("\\.");
+                sb.append(split[0]);
+                sb.append(".");
+                sb.append(wrapper);
+                sb.append(split[1]);
+                sb.append(wrapper);
+            }
         }
 
         return sb.toString();
@@ -178,7 +182,7 @@ public class QueryManager {
             for (Object stringResult:
                  unformattedList) {
                 Map<String, Object> resultMap = new HashMap<>();
-                resultMap.put(columns[0], stringResult);
+                resultMap.put(columns[0].replace("\'", ""), stringResult);
                 formattedList.add(resultMap);
             }
         }
@@ -188,7 +192,7 @@ public class QueryManager {
 
                 for (int i = 0; i < result.length; i++) {
                     try {
-                        resultMap.put(columns[i], result[i]);
+                        resultMap.put(columns[i].replace("\'", ""), result[i]);
                     } catch (Exception e) {
 
                     }
