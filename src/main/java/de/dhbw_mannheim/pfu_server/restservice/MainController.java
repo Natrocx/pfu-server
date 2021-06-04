@@ -7,6 +7,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.NativeQuery;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -214,8 +215,10 @@ public class MainController {
         return mailSuccess ? successMailKey[0] : successMailKey[0]+"; "+"Email failed to send";
     }
 
+    @Autowired
+    private EmailServiceImpl esi;
+
     private boolean sendVerificationEmail(String email, String key, String target) {
-        EmailServiceImpl esi = new EmailServiceImpl();
         return esi.sendTemplatedMessage(email, "StudConnect Verification", target, key);
     }
 

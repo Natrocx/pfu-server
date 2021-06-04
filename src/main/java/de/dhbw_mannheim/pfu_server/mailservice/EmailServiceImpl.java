@@ -16,14 +16,18 @@ public class EmailServiceImpl{
             String to, String subject, String text) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("noreply@pfu_server.dhbw_mannheim.de");
+
+            String sender = "pfustudconnect@gmail.com";
+
+            message.setFrom(sender);
+            message.setReplyTo(sender);
             message.setTo(to);
             message.setSubject(subject);
             message.setText(text);
             emailSender.send(message);
 
             return true;
-        } catch (Exception e){
+        } catch (Exception e){  //https://www.google.com/settings/security/lesssecureapps -> On
             return false;
         }
 
@@ -32,7 +36,11 @@ public class EmailServiceImpl{
     private SimpleMailMessage mailTemplate() {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setText(
-                "This is an automated message to verify your %s. Enter this code in the App to verify:\n%s\n");
+                "This is an automated message to verify your %s. Enter this code in the App to verify:" +
+                        "\n\n%s" +
+                        "\n\n" +
+                        "Greetings, \n" +
+                        "your team at StudConnect.");
         return message;
     }
 
