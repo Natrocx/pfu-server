@@ -199,7 +199,7 @@ public class MainController {
     }
 
     @PostMapping(path="/generateVerificationKey")
-    public @ResponseBody String generateVerificationKey(@RequestParam String userID, @RequestParam String target){
+    public @ResponseBody String[] generateVerificationKey(@RequestParam String userID, @RequestParam String target){
         Queries q = new Queries();
 
         String[] successMailKey = q.generateVerificationKey(userID, target);
@@ -210,7 +210,14 @@ public class MainController {
             mailSuccess = sendVerificationEmail(successMailKey[1], successMailKey[2], target);
         }
 
-        return mailSuccess ? successMailKey[0] : successMailKey[0]+"; "+"Email failed to send";
+        String[] out = new String[4];
+
+        out[0] = "Key: " + successMailKey[0];
+        out[1] = successMailKey[1];
+        out[2] = successMailKey[2];
+        out[3] = "E-mail: " + (mailSuccess ? "Success" : "Fail");
+
+        return out;
     }
 
     @Autowired
