@@ -192,12 +192,10 @@ public class MainController {
     }
 
     @PostMapping(path="/verifyUser")
-    public @ResponseBody String verifyUser(@RequestParam String verificationKey){
+    public @ResponseBody String[] verifyUser(@RequestParam String verificationKey){ //returns Array [Success "Valid Key"/"Fail", target/reason]
         Queries q = new Queries();
 
-        String success = q.verifyUser(verificationKey);
-
-        return success;
+        return q.verifyUser(verificationKey);
     }
 
     @PostMapping(path="/generateVerificationKey")
