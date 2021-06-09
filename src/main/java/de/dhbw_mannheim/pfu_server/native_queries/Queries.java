@@ -595,4 +595,82 @@ public class Queries {
 
         return keys;
     }
+
+    public String[] updateUser(String userid, String first_name, String last_name, String email, String encrypted_password) {
+        QueryManager qm = new QueryManager();
+
+        try{
+
+            Session session = qm.getSession();
+
+            Transaction transaction = session.beginTransaction();
+
+            String queryGetUser = "SELECT ?, ? FROM user WHERE ID_User = ?;";
+
+            List<Map<String, Object>> userList = new QueryManager().sqlDataQueryMapped(queryGetUser, new String[]{"ID_User", "e-mail"},
+                    new String[]{userid});
+
+            if (userList.size() == 0){
+
+                transaction.commit();
+                session.close();
+                return new String[]{"Fail", "Invalid User"};
+            } else {
+                Map<String, Object> user = userList.get(0);
+
+                if (user.get("e-mail").equals(email)) {
+
+                    String query = "UPDATE user SET first_name = :firstname, last_name = :lastname, password_encrypted = :password " +
+                            "WHERE ID_User = :userid;";
+
+
+                    NativeQuery q = session.createNativeQuery(query)
+                            .setParameter("firstname", first_name)
+                            .setParameter("lastname", last_name)
+                            .setParameter("password", encrypted_password)
+                            .setParameter("userid", userid);
+                    q.executeUpdate();
+
+                    transaction.commit();
+                    session.close();
+
+                    return new String[]{"Success", "User updated"};
+                } else {
+                    String query = "UPDATE user SET first_name = :firstname, last_name = :lastname, `e-mail` = :email, verified = :verified, " +
+                            "password_encrypted = :password " +
+                            "WHERE ID_User = :userid;";
+
+
+                    NativeQuery q = session.createNativeQuery(query)
+                            .setParameter("firstname", first_name)
+                            .setParameter("lastname", last_name)
+                            .setParameter("email", email)
+                            .setParameter("verified", "FALSE")
+                            .setParameter("password", encrypted_password)
+                            .setParameter("userid", userid);
+                    q.executeUpdate();
+
+                    transaction.commit();
+                    session.close();
+
+                    return new String[]{"Success", "User updated, needs E-Mail verification"};
+                }
+            }
+        }
+        catch (Exception e){
+            return new String[]{"Fail", e.getStackTrace().toString()};
+            //return false;
+        }
+    }
+
+    public List<Map<String, Object>> getInfos() {
+        QueryManager qm = new QueryManager();
+
+        String query = "SELECT ?, ?, ?, ?, ?, ? FROM info";
+
+        String[] columns = {"ID_Info", "Display_Name", "Kurzinfo", "Priority", "Textinfo", "Weblink"};
+        String[] values = {};
+
+        return qm.sqlDataQueryMapped(query, columns, values);
+    }
 }

@@ -220,4 +220,22 @@ public class MainController {
         return esi.sendTemplatedMessage(email, "StudConnect Verification", target, key);
     }
 
+    @PostMapping(path="/updateUser") // Map ONLY POST Requests
+    public @ResponseBody String[] updateUser (@RequestParam String userID, @RequestParam String first_name, @RequestParam String last_name
+            , @RequestParam String email, @RequestParam String encrypted_password) {
+        // @ResponseBody means the returned String is the response, not a view name
+        // @RequestParam means it is a parameter from the GET or POST request
+        Queries q = new Queries();
+
+
+        return q.updateUser(userID, first_name, last_name, email, encrypted_password);
+    }
+
+    @GetMapping(path="/getInfos")
+    public @ResponseBody List<Map<String,Object>> getInfos() {
+        Queries q = new Queries();
+
+        return q.getInfos();
+    }
+
 }
