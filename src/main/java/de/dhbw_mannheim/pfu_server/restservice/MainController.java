@@ -192,16 +192,14 @@ public class MainController {
     }
 
     @PostMapping(path="/verifyUser")
-    public @ResponseBody String verifyUser(@RequestParam String verificationKey){
+    public @ResponseBody String[] verifyUser(@RequestParam String verificationKey){ //returns Array [Success "Valid Key"/"Fail", target/reason]
         Queries q = new Queries();
 
-        String success = q.verifyUser(verificationKey);
-
-        return success;
+        return q.verifyUser(verificationKey);
     }
 
     @PostMapping(path="/generateVerificationKey")
-    public @ResponseBody String generateVerificationKey(@RequestParam String userID, @RequestParam String target){
+    public @ResponseBody String[] generateVerificationKey(@RequestParam String userID, @RequestParam String target){
         Queries q = new Queries();
 
         String[] successMailKey = q.generateVerificationKey(userID, target);
@@ -212,7 +210,14 @@ public class MainController {
             mailSuccess = sendVerificationEmail(successMailKey[1], successMailKey[2], target);
         }
 
-        return mailSuccess ? successMailKey[0] : successMailKey[0]+"; "+"Email failed to send";
+        String[] out = new String[4];
+
+        out[0] = "Key: " + successMailKey[0];
+        out[1] = successMailKey[1];
+        out[2] = successMailKey[2];
+        out[3] = "E-mail: " + (mailSuccess ? "Success" : "Fail");
+
+        return out;
     }
 
     @Autowired
@@ -220,6 +225,24 @@ public class MainController {
 
     private boolean sendVerificationEmail(String email, String key, String target) {
         return esi.sendTemplatedMessage(email, "StudConnect Verification", target, key);
+    }
+
+    @PostMapping(path="/updateUser") // Map ONLY POST Requests
+    public @ResponseBody String[] updateUser (@RequestParam String userID, @RequestParam String first_name, @RequestParam String last_name
+            , @RequestParam String email, @RequestParam String encrypted_password) {
+        // @ResponseBody means the returned String is the response, not a view name
+        // @RequestParam means it is a parameter from the GET or POST request
+        Queries q = new Queries();
+
+
+        return q.updateUser(userID, first_name, last_name, email, encrypted_password);
+    }
+
+    @GetMapping(path="/getInfos")
+    public @ResponseBody List<Map<String,Object>> getInfos() {
+        Queries q = new Queries();
+
+        return q.getInfos();
     }
 
 }

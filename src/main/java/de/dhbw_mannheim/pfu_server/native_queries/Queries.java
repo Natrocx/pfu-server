@@ -5,12 +5,8 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.NativeQuery;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import java.math.BigInteger;
 import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -454,7 +450,7 @@ public class Queries {
         return qm.sqlDataQueryMapped(query, columns, values);
     }
 
-    public String verifyUser(String verificationKey) {
+    public String[] verifyUser(String verificationKey) {
         QueryManager qm = new QueryManager();
 
         try{
@@ -473,7 +469,7 @@ public class Queries {
 
                 transaction.commit();
                 session.close();
-                return "Invalid Key";
+                return new String[]{"Fail", "Invalid Key"};
             } else {
                 Map<String, Object> key = verificationList.get(0);
 
@@ -481,38 +477,43 @@ public class Queries {
 
                     transaction.commit();
                     session.close();
-                    return "Key was already used";
+                    return new String[]{"Fail", "Key was already used"};
                 } else {
-                    if (!key.get("target").equals("email")){
+
+                    String updateKeyAsUsedQueryString = "UPDATE verification SET used = TRUE WHERE verificationKey = :verificationkey;";
+
+                    NativeQuery updateKeyAsUsedQuery = session.createNativeQuery(updateKeyAsUsedQueryString)
+                            .setParameter("verificationkey", verificationKey);
+                    updateKeyAsUsedQuery.executeUpdate();
+
+                    if (!key.get("target").equals("email")){    //When key target != email, and exists, return valid key + target
+
+                        updateKeyAsUsedQuery.executeUpdate();
 
                         transaction.commit();
                         session.close();
-                        return "Valid Key: " + key.get("target");
+                        return new String[]{"Valid Key", key.get("target").toString()};
                     }
-                    else {
+                    else {  //when key target == email and exists, verify email
 
-                        String query2 = "UPDATE user SET verified = TRUE WHERE ID_User = :userid;";
+                        String verifyUserQueryString = "UPDATE user SET verified = TRUE WHERE ID_User = :userid;";
 
-                        NativeQuery q2 = session.createNativeQuery(query2)
+                        NativeQuery verifyUserQuery = session.createNativeQuery(verifyUserQueryString)
                                 .setParameter("userid", key.get("ID_User"));
-                        q2.executeUpdate();
+                        verifyUserQuery.executeUpdate();
 
-                        String query3 = "UPDATE verification SET used = TRUE WHERE verificationKey = :verificationkey;";
-
-                        NativeQuery q3 = session.createNativeQuery(query3)
-                                .setParameter("verificationkey", verificationKey);
-                        q3.executeUpdate();
+                        updateKeyAsUsedQuery.executeUpdate();
 
                         transaction.commit();
                         session.close();
 
-                        return "Valid Key: E-Mail";
+                        return new String[]{"Valid Key", "email"};
                     }
                 }
             }
         }
         catch (Exception e){
-            return "Fail";
+            return new String[]{"Fail", e.getStackTrace().toString()};
             //return false;
         }
     }
@@ -526,9 +527,9 @@ public class Queries {
 
             Transaction transaction = session.beginTransaction();
 
-            String query1 = "SELECT ?, ? FROM user WHERE ID_User = ?;";
+            String queryGetUser = "SELECT ?, ? FROM user WHERE ID_User = ?;";
 
-            List<Map<String, Object>> userList = new QueryManager().sqlDataQueryMapped(query1, new String[]{"ID_User", "e-mail"},
+            List<Map<String, Object>> userList = new QueryManager().sqlDataQueryMapped(queryGetUser, new String[]{"ID_User", "e-mail"},
                     new String[]{userID});
 
             if (userList.size() == 0){
@@ -539,23 +540,23 @@ public class Queries {
             } else {
                 Map<String, Object> user = userList.get(0);
 
-                String query2 = "SELECT ? FROM verification;";
+                String queryGetAllPreviousKeys = "SELECT ? FROM verification;";
 
-                List<Map<String, Object>> keyList = new QueryManager().sqlDataQueryMapped(query2,
+                List<Map<String, Object>> keyList = new QueryManager().sqlDataQueryMapped(queryGetAllPreviousKeys,
                         new String[]{"verificationKey"},
                         new String[]{});
 
-                List<String> keys = extractKeys(keyList);
+                List<String> keys = extractKeys(keyList, "verificationKey");
 
                 String verificationKey = generateKey(255, keys);
 
-                String query3 = "INSERT INTO verification (ID_User, verificationKey, target) VALUES (:userid, :verificationkey, :target)";
+                String queryInsertNewKey = "INSERT INTO verification (ID_User, verificationKey, target) VALUES (:userid, :verificationkey, :target)";
 
-                NativeQuery q3 = session.createNativeQuery(query3)
+                NativeQuery qInsertNewKey = session.createNativeQuery(queryInsertNewKey)
                         .setParameter("userid", userID)
                         .setParameter("verificationkey", verificationKey)
                         .setParameter("target", target);
-                q3.executeUpdate();
+                qInsertNewKey.executeUpdate();
 
 
                 transaction.commit();
@@ -574,6 +575,7 @@ public class Queries {
 
         boolean useLetters = true;
         boolean useNumbers = true;
+
         String generatedString = RandomStringUtils.random(length, useLetters, useNumbers);
 
         while (keys.contains(generatedString)){
@@ -583,14 +585,92 @@ public class Queries {
         return generatedString;
     }
 
-    private List<String> extractKeys(List<Map<String, Object>> keyList) {
+    private List<String> extractKeys(List<Map<String, Object>> keyList, String keyName) {
         List<String> keys = new ArrayList<>();
 
         for (Map<String, Object> k:
              keyList) {
-            keys.add(k.get("verificationKey").toString());
+            keys.add(k.get(keyName).toString());
         }
 
         return keys;
+    }
+
+    public String[] updateUser(String userid, String first_name, String last_name, String email, String encrypted_password) {
+        QueryManager qm = new QueryManager();
+
+        try{
+
+            Session session = qm.getSession();
+
+            Transaction transaction = session.beginTransaction();
+
+            String queryGetUser = "SELECT ?, ? FROM user WHERE ID_User = ?;";
+
+            List<Map<String, Object>> userList = new QueryManager().sqlDataQueryMapped(queryGetUser, new String[]{"ID_User", "e-mail"},
+                    new String[]{userid});
+
+            if (userList.size() == 0){
+
+                transaction.commit();
+                session.close();
+                return new String[]{"Fail", "Invalid User"};
+            } else {
+                Map<String, Object> user = userList.get(0);
+
+                if (user.get("e-mail").equals(email)) {
+
+                    String query = "UPDATE user SET first_name = :firstname, last_name = :lastname, password_encrypted = :password " +
+                            "WHERE ID_User = :userid;";
+
+
+                    NativeQuery q = session.createNativeQuery(query)
+                            .setParameter("firstname", first_name)
+                            .setParameter("lastname", last_name)
+                            .setParameter("password", encrypted_password)
+                            .setParameter("userid", userid);
+                    q.executeUpdate();
+
+                    transaction.commit();
+                    session.close();
+
+                    return new String[]{"Success", "User updated"};
+                } else {
+                    String query = "UPDATE user SET first_name = :firstname, last_name = :lastname, `e-mail` = :email, verified = :verified, " +
+                            "password_encrypted = :password " +
+                            "WHERE ID_User = :userid;";
+
+
+                    NativeQuery q = session.createNativeQuery(query)
+                            .setParameter("firstname", first_name)
+                            .setParameter("lastname", last_name)
+                            .setParameter("email", email)
+                            .setParameter("verified", "FALSE")
+                            .setParameter("password", encrypted_password)
+                            .setParameter("userid", userid);
+                    q.executeUpdate();
+
+                    transaction.commit();
+                    session.close();
+
+                    return new String[]{"Success", "User updated, needs E-Mail verification"};
+                }
+            }
+        }
+        catch (Exception e){
+            return new String[]{"Fail", e.getStackTrace().toString()};
+            //return false;
+        }
+    }
+
+    public List<Map<String, Object>> getInfos() {
+        QueryManager qm = new QueryManager();
+
+        String query = "SELECT ?, ?, ?, ?, ?, ? FROM info";
+
+        String[] columns = {"ID_Info", "Display_Name", "Kurzinfo", "Priority", "Textinfo", "Weblink"};
+        String[] values = {};
+
+        return qm.sqlDataQueryMapped(query, columns, values);
     }
 }
